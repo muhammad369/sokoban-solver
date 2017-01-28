@@ -88,11 +88,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Searcher.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="State.cs" />
-    <Compile Include="Tree.cs" />
+    <Compile Include="svmEngine\IState.cs" />
+    <Compile Include="svmEngine\Searcher.cs" />
+    <Compile Include="svmEngine\StatesTree.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

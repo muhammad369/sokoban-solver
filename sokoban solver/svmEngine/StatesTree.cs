@@ -4,23 +4,21 @@ using System.Linq;
 using System.Text;
 
 
-namespace sokoban_solver
+namespace inferenceEngine.svmEngine
 {
     
-    
-    
     /// <summary>
-    /// 
+    /// the tree of the states on the valid moves graph(space)
     /// </summary>
     /// <typeparam name="T">the type that each node of the tree contains as its value</typeparam>
-    public class Tree<T>
+    public class StatesTree<T>
     {
 
         internal Node<T> root;
         internal Dictionary<T, T> nodes;
 
 
-        public Tree()
+        public StatesTree()
         {
             nodes = new Dictionary<T,T>();
             Node<T>.tree = this;
@@ -43,7 +41,7 @@ namespace sokoban_solver
     public class Node<T>
     {
 
-        internal static Tree<T> tree;
+        internal static StatesTree<T> tree;
         internal T Value;
 
         internal Node<T> Parent;

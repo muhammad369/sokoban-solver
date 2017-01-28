@@ -1,4 +1,5 @@
-﻿using System;
+﻿using inferenceEngine.svmEngine;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -28,7 +29,7 @@ namespace sokoban_solver
         bool ballSet = false;
         int blocks = 0;
         int targets = 0;
-        List<State> solVector;
+        List<IState> solVector;
         //
         //int currentStateIndex = 0;
         public Position indexEnd;
@@ -407,7 +408,7 @@ namespace sokoban_solver
                 {
                     p++;
                 }
-                currentState = solVector.ElementAt(p);
+                currentState = solVector.ElementAt(p) as State;
                 drawState(currentState, indexEnd);
                 refreshCanvas();
                 //
@@ -423,7 +424,7 @@ namespace sokoban_solver
                 {
                     p--;
                 }
-                currentState = solVector.ElementAt(p);
+                currentState = solVector.ElementAt(p) as State;
                 drawState(currentState, indexEnd);
                 refreshCanvas();
                 //
