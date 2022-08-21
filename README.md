@@ -1,3 +1,3 @@
 # sokoban-solver
-a proof-of-concept project that solves the well-known game Sokoban, applying the model of State and Valid Moves.
+a proof-of-concept app that solves the well-known game Sokoban, applying breadth-first search on the State Space.
 it's implemented in .Net as a WinForms application
