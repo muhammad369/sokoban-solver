@@ -9,11 +9,11 @@ namespace sokoban_solver
     public class Router
     {
 
-        private State state;
+        private SokobanState state;
         private bool[,] visited;
         private Queue<Position> queue;
 
-        public Router(State state)
+        public Router(SokobanState state)
         {
             this.state = state;
         }
@@ -108,19 +108,19 @@ namespace sokoban_solver
             byte left = this.state.board[d.X - 1, d.Y];
             byte up = this.state.board[d.X, d.Y - 1];
             byte down = this.state.board[d.X, d.Y + 1];
-            if (!visited[d.X + 1, d.Y] && right != State.wall && right != State.block && right != State.blockInTarget)//right
+            if (!visited[d.X + 1, d.Y] && right != SokobanState.WALL && right != SokobanState.BLOCK && right != SokobanState.BLOCK_IN_TARGET)//right
             {
                 tmp.Add(new Position(d.X + 1, d.Y));
             }
-            if (!visited[d.X - 1, d.Y] && left != State.wall && left != State.block && left != State.blockInTarget)//left
+            if (!visited[d.X - 1, d.Y] && left != SokobanState.WALL && left != SokobanState.BLOCK && left != SokobanState.BLOCK_IN_TARGET)//left
             {
                 tmp.Add(new Position(d.X - 1, d.Y));
             }
-            if (!visited[d.X, d.Y - 1] && up != State.wall && up != State.block && up != State.blockInTarget)//up
+            if (!visited[d.X, d.Y - 1] && up != SokobanState.WALL && up != SokobanState.BLOCK && up != SokobanState.BLOCK_IN_TARGET)//up
             {
                 tmp.Add(new Position(d.X, d.Y - 1));
             }
-            if (!visited[d.X, d.Y + 1] && down != State.wall && down != State.block && down != State.blockInTarget)//down
+            if (!visited[d.X, d.Y + 1] && down != SokobanState.WALL && down != SokobanState.BLOCK && down != SokobanState.BLOCK_IN_TARGET)//down
             {
                 tmp.Add(new Position(d.X, d.Y + 1));
             }

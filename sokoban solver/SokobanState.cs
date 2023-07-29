@@ -1,6 +1,6 @@
 
 
-using inferenceEngine.svmEngine;
+using Solver.AStar;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,17 +10,17 @@ namespace sokoban_solver
 {
 
 
-    public class State : IState
+    public class SokobanState : AbsState
     {
 
         //constants representing what in a cell
-        public static byte ball = 1;
-        public static byte empty = 0;
-        public static byte wall = 2;
-        public static byte block = 3;
-        public static byte target = 4;
-        public static byte blockInTarget = 5;
-        public static byte ballInTarget = 6;
+        public const byte PLAYER = 1;
+        public const byte EMPTY = 0;
+        public const byte WALL = 2;
+        public const byte BLOCK = 3;
+        public const byte TARGET = 4;
+        public const byte BLOCK_IN_TARGET = 5;
+        public const byte PLAYER_IN_TARGET = 6;
 
         public byte[,] board;
 
@@ -38,7 +38,7 @@ namespace sokoban_solver
             return this.board[x, y];
         }
 
-        public State(int dimX, int dimY)
+        public SokobanState(int dimX, int dimY)
         {
             this.board = new byte[dimX, dimY];
             router = new Router(this);
@@ -49,28 +49,31 @@ namespace sokoban_solver
 
         //setters
 
-        public void setEmpty(int x, int y)//supposed to be used only when moving blocks and ball
+        public void setEmpty(int x, int y)//supposed to be used only when moving blocks and palyer
         {
-            this.board[x, y] = State.empty;
+            this.board[x, y] = SokobanState.EMPTY;
         }
+
         public void setEmpty(Position d)
         {
-            this.board[d.X, d.Y] = empty;
+            this.board[d.X, d.Y] = EMPTY;
         }
+
         public void setBlock(int x, int y)
         {
-            board[x, y] = block;
+            board[x, y] = BLOCK;
 
         }
+
         public void setBlock(Position d)
         {
-            this.board[d.X, d.Y] = block;
+            this.board[d.X, d.Y] = BLOCK;
         }
 
 
         public void setBall(int x, int y)
         {
-            board[x, y] = ball;
+            board[x, y] = PLAYER;
             this.Ball.X = x;
             this.Ball.Y = y;
         }
@@ -78,44 +81,46 @@ namespace sokoban_solver
 
         public void setBall(Position d)
         {
-            this.board[d.X, d.Y] = ball;
+            this.board[d.X, d.Y] = PLAYER;
             this.Ball = d;
         }
+
         public void setWall(int x, int y)
         {
-            this.board[x, y] = wall;
+            this.board[x, y] = WALL;
         }
 
         public void setWall(Position d)
         {
-            this.board[d.X, d.Y] = wall;
+            this.board[d.X, d.Y] = WALL;
         }
 
         public void setTarget(int x, int y)
         {
-            this.board[x, y] = target;
+            this.board[x, y] = TARGET;
         }
 
         public void setTarget(Position d)
         {
-            this.board[d.X, d.Y] = target;
+            this.board[d.X, d.Y] = TARGET;
         }
 
         public void setBlockInTarget(int x, int y)
         {
-            this.board[x, y] = blockInTarget;
+            this.board[x, y] = BLOCK_IN_TARGET;
 
         }
+
         public void setBlockInTarget(Position d)
         {
-            this.board[d.X, d.Y] = blockInTarget;
+            this.board[d.X, d.Y] = BLOCK_IN_TARGET;
         }
 
 
 
         public void setBallInTarget(int x, int y)
         {
-            this.board[x, y] = ballInTarget;
+            this.board[x, y] = PLAYER_IN_TARGET;
             this.Ball.X = x;
             this.Ball.Y = y;
 
@@ -124,7 +129,7 @@ namespace sokoban_solver
 
         public void setBallInTarget(Position d)
         {
-            this.board[d.X, d.Y] = ballInTarget;
+            this.board[d.X, d.Y] = PLAYER_IN_TARGET;
             this.Ball = d;
         }
 
@@ -134,14 +139,14 @@ namespace sokoban_solver
 
         public override bool Equals(Object o)
         {
-            if (o.GetType() == typeof(State))
+            if (o.GetType() == typeof(SokobanState))
             {
-                State other = (State)o;
+                SokobanState other = (SokobanState)o;
 
                 /*
                 the state is considered the same iff:
                 - blocks positions are equivalent
-                - ball position in one of them has route a to the other
+                - player position in one of them has route a to the other
                 */
 
                 foreach (Position item in this.blocks)
@@ -176,11 +181,11 @@ namespace sokoban_solver
         }
 
 
-        public IState clone()
+        public override AbsState clone()
         {
             int x = this.board.GetLength(0);
             int y = this.board.GetLength(1);
-            State s = new State(x, y);
+            SokobanState s = new SokobanState(x, y);
             //clone board
             for (int i = 0; i < x; i++)
             {
@@ -242,13 +247,13 @@ namespace sokoban_solver
         private bool isEmpty(Position d)
         {
 
-            if (this.board[d.X, d.Y] == empty)
+            if (this.board[d.X, d.Y] == EMPTY)
                 return true;
-            else if (this.board[d.X, d.Y] == target)
+            else if (this.board[d.X, d.Y] == TARGET)
                 return true;
-            else if (this.board[d.X, d.Y] == ball)
+            else if (this.board[d.X, d.Y] == PLAYER)
                 return true;
-            else if (this.board[d.X, d.Y] == ballInTarget)
+            else if (this.board[d.X, d.Y] == PLAYER_IN_TARGET)
                 return true;
             else
                 return false;
@@ -256,13 +261,13 @@ namespace sokoban_solver
 
         private bool isEmpty(int x, int y)
         {
-            if (this.board[x, y] == empty)
+            if (this.board[x, y] == EMPTY)
                 return true;
-            else if (this.board[x, y] == target)
+            else if (this.board[x, y] == TARGET)
                 return true;
-            else if (this.board[x, y] == ball)
+            else if (this.board[x, y] == PLAYER)
                 return true;
-            else if (this.board[x, y] == ballInTarget)
+            else if (this.board[x, y] == PLAYER_IN_TARGET)
                 return true;
             else
                 return false;
@@ -273,9 +278,9 @@ namespace sokoban_solver
         /// valid changes in a state
         /// </summary>
         /// <returns></returns>
-        public List<IState> Next()
+        public override List<AbsState> Next()
         {
-            List<IState> tmp = new List<IState>();
+            List<AbsState> tmp = new List<AbsState>();
             foreach (Position blk in this.blocks)
             {
                 foreach (Position move in blockValidMoves(blk))
@@ -290,15 +295,15 @@ namespace sokoban_solver
 
 
         //takes a block and a position to move to and form a new state
-        private State formState(Position blk, Position move)
+        private SokobanState formState(Position blk, Position move)
         {
-            State s = this.clone() as State;
+            SokobanState s = this.clone() as SokobanState;
 
             //removing the ball from its initial state
-            if (s.board[Ball.X, Ball.Y] == ballInTarget)
+            if (s.board[Ball.X, Ball.Y] == PLAYER_IN_TARGET)
                 s.setTarget(Ball);
 
-            else if (s.board[Ball.X, Ball.Y] == ball)  //ball
+            else if (s.board[Ball.X, Ball.Y] == PLAYER)  //ball
                 s.setEmpty(Ball);
 
             //else throw new Exception("unexpected cell value");
@@ -308,12 +313,12 @@ namespace sokoban_solver
             s.blocks.Add(move);
 
             //remove blk and put ball
-            if (s.board[blk.X, blk.Y] == block)
+            if (s.board[blk.X, blk.Y] == BLOCK)
             {
                 s.setBall(blk);
                 s.Ball = blk;
             }
-            else if (s.board[blk.X, blk.Y] == blockInTarget)
+            else if (s.board[blk.X, blk.Y] == BLOCK_IN_TARGET)
             {  //block in target
                 s.setBallInTarget(blk);
                 s.Ball = blk;
@@ -325,12 +330,12 @@ namespace sokoban_solver
             }
 
             //adjust the position of move and put block
-            if (s.board[move.X, move.Y] == target)
+            if (s.board[move.X, move.Y] == TARGET)
             {//target
                 s.setBlockInTarget(move);
                 s.TargetsNotYetReached -= 1;
             }
-            else if (s.board[move.X, move.Y] == empty)//empty
+            else if (s.board[move.X, move.Y] == EMPTY)//empty
             {
                 s.setBlock(move);
             }
@@ -347,18 +352,18 @@ namespace sokoban_solver
         {
             foreach (Position item in this.blocks)
             {
-                if (this.getCell(item) == State.block)//not block in target
+                if (this.getCell(item) == SokobanState.BLOCK)//not block in target
                 {
 
                     //
                     bool wallUP = false;
                     bool wallRight = false;
                     bool wallDown = false;
-                    if (this.getCell(item.X, item.Y - 1) == State.wall)//up
+                    if (this.getCell(item.X, item.Y - 1) == SokobanState.WALL)//up
                     {
                         wallUP = true;
                     }
-                    if (this.getCell(item.X + 1, item.Y) == State.wall)//right
+                    if (this.getCell(item.X + 1, item.Y) == SokobanState.WALL)//right
                     {
                         if (wallUP)
                         {
@@ -370,7 +375,7 @@ namespace sokoban_solver
                         }
 
                     }
-                    if (this.getCell(item.X, item.Y + 1) == State.wall)//down
+                    if (this.getCell(item.X, item.Y + 1) == SokobanState.WALL)//down
                     {
                         if (wallRight)
                         {
@@ -381,7 +386,7 @@ namespace sokoban_solver
                             wallDown = true;
                         }
                     }
-                    if (this.getCell(item.X - 1, item.Y) == State.wall)//left
+                    if (this.getCell(item.X - 1, item.Y) == SokobanState.WALL)//left
                     {
                         if (wallDown || wallUP)
                         {
@@ -397,11 +402,15 @@ namespace sokoban_solver
         }
         #endregion
 
-        public bool isTargetState()
+        public override bool IsTargetState()
         {
             return TargetsNotYetReached == 0;
         }
 
 
-    }
+		public override int CalculateHeuristicCost()
+		{
+			throw new NotImplementedException();
+		}
+	}
 }

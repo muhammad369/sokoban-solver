@@ -1,4 +1,4 @@
-﻿using inferenceEngine.svmEngine;
+﻿using Solver.AStar;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -24,12 +24,12 @@ namespace sokoban_solver
 
         Graphics g;
         byte mode = 200;
-        State currentState;
+        SokobanState currentState;
         //
         bool ballSet = false;
         int blocks = 0;
         int targets = 0;
-        List<IState> solVector;
+        List<AbsState> solVector;
         //
         //int currentStateIndex = 0;
         public Position indexEnd;
@@ -48,7 +48,7 @@ namespace sokoban_solver
             g = Graphics.FromImage(image);
             //
 
-            currentState = new State(indexEnd.X, indexEnd.Y);
+            currentState = new SokobanState(indexEnd.X, indexEnd.Y);
             initializeState(currentState, indexEnd);
             drawState(currentState, indexEnd);
             refreshCanvas();
@@ -68,13 +68,13 @@ namespace sokoban_solver
             if (!ballSet)
             {
                 byte pos = currentState.getCell(d);
-                if (pos == State.empty)
+                if (pos == SokobanState.EMPTY)
                 {
                     currentState.setBall(d);
                     drawBall(d);
                     ballSet = true;
                 }
-                else if (pos == State.target)
+                else if (pos == SokobanState.TARGET)
                 {
                     currentState.setBallInTarget(d);
                     drawBall(d);
@@ -94,14 +94,14 @@ namespace sokoban_solver
         void setBlock(Position d)
         {
             byte pos = currentState.getCell(d);
-            if (pos == State.empty)
+            if (pos == SokobanState.EMPTY)
             {
                 currentState.blocks.Add( d);
                 currentState.setBlock(d);
                 drawBlock(d);
                 blocks++;
             }
-            else if (pos == State.target)
+            else if (pos == SokobanState.TARGET)
             {
                 currentState.blocks.Add( d);
                 currentState.setBlockInTarget(d);
@@ -118,7 +118,7 @@ namespace sokoban_solver
         void setWall(Position d)
         {
             byte pos = currentState.getCell(d);
-            if (pos == State.empty)
+            if (pos == SokobanState.EMPTY)
             {
                 currentState.setWall(d);
                 drawWall(d);
@@ -135,7 +135,7 @@ namespace sokoban_solver
         void setTarget(Position d)
         {
             byte pos = currentState.getCell(d);
-            if (pos == State.empty)
+            if (pos == SokobanState.EMPTY)
             {
                 currentState.setTarget(d);
                 currentState.TargetsNotYetReached++;
@@ -153,34 +153,34 @@ namespace sokoban_solver
         void setEmpty(Position d)
         {
             byte pos = currentState.getCell(d);
-            if (pos == State.ball)
+            if (pos == SokobanState.PLAYER)
             {
                 ballSet = false;
                 currentState.Ball = new Position();
                 currentState.setEmpty(d);
                 drawEmpty(d);
             }
-            else if (pos == State.block)
+            else if (pos == SokobanState.BLOCK)
             {
                 currentState.blocks.Remove(d);
                 blocks--;
                 currentState.setEmpty(d);
                 drawEmpty(d);
             }
-            else if (pos == State.target)
+            else if (pos == SokobanState.TARGET)
             {
                 targets--;
                 currentState.TargetsNotYetReached--;
                 currentState.setEmpty(d);
                 drawEmpty(d);
             }
-            else if (pos == State.wall)
+            else if (pos == SokobanState.WALL)
             {
 
                 currentState.setEmpty(d);
                 drawEmpty(d);
             }
-            else if (pos == State.ballInTarget)
+            else if (pos == SokobanState.PLAYER_IN_TARGET)
             {
                 ballSet = false;
                 currentState.Ball = new Position();
@@ -189,7 +189,7 @@ namespace sokoban_solver
                 currentState.setEmpty(d);
                 drawEmpty(d);
             }
-            else if (pos == State.blockInTarget)
+            else if (pos == SokobanState.BLOCK_IN_TARGET)
             {
                 currentState.blocks.Remove(d);
                 blocks--;
@@ -200,7 +200,7 @@ namespace sokoban_solver
             }
         }
         //
-        void initializeState(State state, Position dim)
+        void initializeState(SokobanState state, Position dim)
         {
             for (int i = 0; i < dim.X; i++)
             {
@@ -220,7 +220,7 @@ namespace sokoban_solver
             }
         }
 
-        void drawState(State state, Position dim)
+        void drawState(SokobanState state, Position dim)
         {
             for (int i = 0; i < dim.X; i++)
             {
@@ -228,40 +228,40 @@ namespace sokoban_solver
                 {
                     byte pos = state.getCell(i, j);
                     Position p = new Position(i, j);
-                    if (pos == State.empty)
+                    if (pos == SokobanState.EMPTY)
                     {
 
                         drawEmpty(p);
                     }
-                    else if (pos == State.wall)
+                    else if (pos == SokobanState.WALL)
                     {
 
                         drawWall(p);
                     }
-                    else if (pos == State.block)
+                    else if (pos == SokobanState.BLOCK)
                     {
 
                         drawEmpty(p);
                         drawBlock(p);
                     }
-                    else if (pos == State.target)
+                    else if (pos == SokobanState.TARGET)
                     {
 
                         drawTarget(p);
                     }
-                    else if (pos == State.ball)
+                    else if (pos == SokobanState.PLAYER)
                     {
 
                         drawEmpty(p);
                         drawBall(p);
                     }
-                    else if (pos == State.blockInTarget)
+                    else if (pos == SokobanState.BLOCK_IN_TARGET)
                     {
 
                         drawTarget(p);
                         drawBlock(p);
                     }
-                    else if (pos == State.ballInTarget)
+                    else if (pos == SokobanState.PLAYER_IN_TARGET)
                     {
 
                         drawTarget(p);
@@ -292,20 +292,20 @@ namespace sokoban_solver
                 if (x != 0 && y != 0 && x < indexEnd.X - 1 && y < indexEnd.Y - 1)
                 {
                     Position clicked = new Position(x, y);
-                    if (mode == State.ball)
+                    if (mode == SokobanState.PLAYER)
                     {
 
                         setBall(clicked);
                     }
-                    else if (mode == State.block)
+                    else if (mode == SokobanState.BLOCK)
                     {
                         setBlock(clicked);
                     }
-                    else if (mode == State.wall)
+                    else if (mode == SokobanState.WALL)
                     {
                         setWall(clicked);
                     }
-                    else if (mode == State.target)
+                    else if (mode == SokobanState.TARGET)
                     {
                         setTarget(clicked);
                     }
@@ -330,7 +330,7 @@ namespace sokoban_solver
 
             if (!solved)
             {
-                mode = State.wall; 
+                mode = SokobanState.WALL; 
             }
         }
 
@@ -338,7 +338,7 @@ namespace sokoban_solver
         {
             if (!solved)
             {
-                mode = State.block; 
+                mode = SokobanState.BLOCK; 
             }
         }
 
@@ -346,7 +346,7 @@ namespace sokoban_solver
         {
             if (!solved)
             {
-                mode = State.target;
+                mode = SokobanState.TARGET;
             }
         }
 
@@ -354,7 +354,7 @@ namespace sokoban_solver
         {
             if (!solved)
             {
-                mode = State.ball;
+                mode = SokobanState.PLAYER;
             }
         }
 
@@ -408,7 +408,7 @@ namespace sokoban_solver
                 {
                     p++;
                 }
-                currentState = solVector.ElementAt(p) as State;
+                currentState = solVector.ElementAt(p) as SokobanState;
                 drawState(currentState, indexEnd);
                 refreshCanvas();
                 //
@@ -424,7 +424,7 @@ namespace sokoban_solver
                 {
                     p--;
                 }
-                currentState = solVector.ElementAt(p) as State;
+                currentState = solVector.ElementAt(p) as SokobanState;
                 drawState(currentState, indexEnd);
                 refreshCanvas();
                 //
