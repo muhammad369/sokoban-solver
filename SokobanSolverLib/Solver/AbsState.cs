@@ -13,7 +13,7 @@ namespace Solver.AStar
             this.HCost = CalculateHeuristicCost();
         }
 
-        public abstract AbsState clone();
+        public abstract AbsState Clone();
 
         public abstract List<AbsState> Next();
 

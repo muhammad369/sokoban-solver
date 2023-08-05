@@ -49,7 +49,7 @@ namespace sokoban_solver
             //
 
             currentState = new SokobanState(indexEnd.X, indexEnd.Y);
-            initializeState(currentState, indexEnd);
+            //initializeState(currentState, indexEnd);
             drawState(currentState, indexEnd);
             refreshCanvas();
         }
@@ -67,16 +67,16 @@ namespace sokoban_solver
         {
             if (!ballSet)
             {
-                byte pos = currentState.getCell(d);
+                byte pos = currentState.GetCell(d);
                 if (pos == SokobanState.EMPTY)
                 {
-                    currentState.setBall(d);
+                    currentState.SetPlayer(d);
                     drawBall(d);
                     ballSet = true;
                 }
                 else if (pos == SokobanState.TARGET)
                 {
-                    currentState.setBallInTarget(d);
+                    currentState.SetPlayerInTarget(d);
                     drawBall(d);
                     ballSet = true;
                 }
@@ -93,19 +93,19 @@ namespace sokoban_solver
         }
         void setBlock(Position d)
         {
-            byte pos = currentState.getCell(d);
+            byte pos = currentState.GetCell(d);
             if (pos == SokobanState.EMPTY)
             {
                 currentState.blocks.Add( d);
-                currentState.setBlock(d);
+                currentState.SetBlock(d);
                 drawBlock(d);
                 blocks++;
             }
             else if (pos == SokobanState.TARGET)
             {
                 currentState.blocks.Add( d);
-                currentState.setBlockInTarget(d);
-                currentState.TargetsNotYetReached--;
+                currentState.SetBlockInTarget(d);
+                currentState.targetsNotYetFilled--;
                 drawBlock(d);
                 blocks++;
             }
@@ -117,10 +117,10 @@ namespace sokoban_solver
         }
         void setWall(Position d)
         {
-            byte pos = currentState.getCell(d);
+            byte pos = currentState.GetCell(d);
             if (pos == SokobanState.EMPTY)
             {
-                currentState.setWall(d);
+                currentState.SetWall(d);
                 drawWall(d);
             }
         }
@@ -134,11 +134,11 @@ namespace sokoban_solver
         }
         void setTarget(Position d)
         {
-            byte pos = currentState.getCell(d);
+            byte pos = currentState.GetCell(d);
             if (pos == SokobanState.EMPTY)
             {
-                currentState.setTarget(d);
-                currentState.TargetsNotYetReached++;
+                currentState.SetTarget(d);
+                currentState.targetsNotYetFilled++;
                 targets++;
                 drawTarget(d);
             }
@@ -152,41 +152,41 @@ namespace sokoban_solver
         }
         void setEmpty(Position d)
         {
-            byte pos = currentState.getCell(d);
+            byte pos = currentState.GetCell(d);
             if (pos == SokobanState.PLAYER)
             {
                 ballSet = false;
-                currentState.Ball = new Position();
-                currentState.setEmpty(d);
+                currentState.player = new Position();
+                currentState.SetEmpty(d);
                 drawEmpty(d);
             }
             else if (pos == SokobanState.BLOCK)
             {
                 currentState.blocks.Remove(d);
                 blocks--;
-                currentState.setEmpty(d);
+                currentState.SetEmpty(d);
                 drawEmpty(d);
             }
             else if (pos == SokobanState.TARGET)
             {
                 targets--;
-                currentState.TargetsNotYetReached--;
-                currentState.setEmpty(d);
+                currentState.targetsNotYetFilled--;
+                currentState.SetEmpty(d);
                 drawEmpty(d);
             }
             else if (pos == SokobanState.WALL)
             {
 
-                currentState.setEmpty(d);
+                currentState.SetEmpty(d);
                 drawEmpty(d);
             }
             else if (pos == SokobanState.PLAYER_IN_TARGET)
             {
                 ballSet = false;
-                currentState.Ball = new Position();
+                currentState.player = new Position();
                 targets--;
-                currentState.TargetsNotYetReached--;
-                currentState.setEmpty(d);
+                currentState.targetsNotYetFilled--;
+                currentState.SetEmpty(d);
                 drawEmpty(d);
             }
             else if (pos == SokobanState.BLOCK_IN_TARGET)
@@ -195,7 +195,7 @@ namespace sokoban_solver
                 blocks--;
                 targets--;
                 //don't decrement targetsNotYetReached because that target was reached
-                currentState.setEmpty(d);
+                currentState.SetEmpty(d);
                 drawEmpty(d);
             }
         }
@@ -204,19 +204,19 @@ namespace sokoban_solver
         {
             for (int i = 0; i < dim.X; i++)
             {
-                state.setWall(i, 0);
+                state.SetWall(i, 0);
             }
             for (int i = 0; i < dim.X; i++)
             {
-                state.setWall(i, dim.Y - 1);
+                state.SetWall(i, dim.Y - 1);
             }
             for (int i = 0; i < dim.Y - 1; i++)
             {
-                state.setWall(0, i);
+                state.SetWall(0, i);
             }
             for (int i = 0; i < dim.Y - 1; i++)
             {
-                state.setWall(dim.X - 1, i);
+                state.SetWall(dim.X - 1, i);
             }
         }
 
@@ -226,7 +226,7 @@ namespace sokoban_solver
             {
                 for (int j = 0; j < dim.Y; j++)
                 {
-                    byte pos = state.getCell(i, j);
+                    byte pos = state.GetCell(i, j);
                     Position p = new Position(i, j);
                     if (pos == SokobanState.EMPTY)
                     {
@@ -289,12 +289,10 @@ namespace sokoban_solver
             {
                 int x = (e.X / 50);
                 int y = (e.Y / 50);
-                if (x != 0 && y != 0 && x < indexEnd.X - 1 && y < indexEnd.Y - 1)
-                {
+                
                     Position clicked = new Position(x, y);
                     if (mode == SokobanState.PLAYER)
                     {
-
                         setBall(clicked);
                     }
                     else if (mode == SokobanState.BLOCK)
@@ -310,7 +308,7 @@ namespace sokoban_solver
                         setTarget(clicked);
                     }
 
-                }
+                
             }
                 else if (e.Button == MouseButtons.Right)
                 {
@@ -365,7 +363,7 @@ namespace sokoban_solver
         {
             if (!ballSet)
             {
-                MessageBox.Show(this, "the Ball not set yet !");
+                MessageBox.Show(this, "the Player position not set yet !");
                     
             }
             else if (blocks!=targets || targets==0)

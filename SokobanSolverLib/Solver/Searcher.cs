@@ -35,8 +35,6 @@ namespace Solver.AStar
                     tmp.Add(item);
                 }
             }
-            
-            
             return tmp;
         }
 
