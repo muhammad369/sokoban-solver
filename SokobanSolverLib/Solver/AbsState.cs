@@ -7,10 +7,9 @@ namespace Solver.AStar
     public abstract class AbsState
     {
 
-        public AbsState(int fCost = 0)
+        public AbsState(int gCost)
         {
-            this.GCost = fCost;
-            this.HCost = CalculateHeuristicCost();
+            this.GCost = gCost;
         }
 
         public abstract AbsState Clone();
@@ -30,7 +29,8 @@ namespace Solver.AStar
         /// <summary>
         /// the expected number of steps to reach the final state
         /// </summary>
-        public int HCost { get; set; }
+        public int HCost { get { if (_hCost == -1) { _hCost = CalculateHeuristicCost(); } return _hCost; } }
+        private int _hCost = -1;
 
         public int TotalCost { get { return GCost + HCost; } }
     }

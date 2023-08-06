@@ -8,7 +8,7 @@ namespace SokobanSolver.Tests
 		[TestMethod]
 		public void RouteExists()
 		{
-			var state = new SokobanState(4, 4);
+			var state = new SokobanState(4, 4, 0);
 
 			state.SetBlock(0, 0);
 			state.SetTarget(3, 3);
@@ -36,5 +36,36 @@ namespace SokobanSolver.Tests
 			Assert.IsFalse(test3);
 
 		}
+
+
+		[TestMethod]
+		public void NearestWhere()
+		{
+			var state = new SokobanState(4, 4, 0);
+
+
+			var router = new Router(state);
+
+			var (pos1, dist1) = router.NearestWhere(new Position(0, 0), (pos, content)=> content == SokobanState.TARGET);
+
+			Assert.IsTrue(pos1 == null && dist1 == -1);
+
+			state.SetTarget(2, 2);
+			state.SetTarget(1, 0);
+
+
+			var (pos2, dist2) = router.NearestWhere(new Position(0, 0), (pos, content) => content == SokobanState.TARGET);
+
+			Assert.IsTrue(pos2.Equals(new Position(1, 0)) && dist2 == 1);
+
+
+
+			var (pos3, dist3) = router.NearestWhere(new Position(0, 0), (pos, content) => content == SokobanState.TARGET && !pos.Equals(new Position(1, 0)));
+
+			Assert.IsTrue(pos3.Equals(new Position(2, 2)) && dist3 == 4);
+
+		}
+
+		
 	}
 }

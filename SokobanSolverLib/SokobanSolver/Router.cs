@@ -135,12 +135,12 @@ namespace sokoban_solver
 		///  Finds the nearest cell from a given position that satisfies a certain condition
 		/// </summary>
         /// <returns>a tuple of the position and the distance if found, null and -1 otherwise</returns>
-		public (Position?, int) NearestWhere(Position from, Func<Position, byte, bool> condition, Queue<Position>? q = null, int accumulatedDistance = 0)
+		public (Position?, int) NearestWhere(Position from, Func<Position, byte, bool> condition, Queue<(Position, int)>? q = null, int accumulatedDistance = 0)
 		{
 			if (q == null)
 			{
 				visited = new bool[this.state.board.GetLength(0), this.state.board.GetLength(1)];
-				q = new Queue<Position>();
+				q = new Queue<(Position, int)>();
 			}
 
 			if (condition(from, state.GetCell(from)))
@@ -155,21 +155,19 @@ namespace sokoban_solver
 				
 				foreach (Position item in adj)
 				{
-					q.Enqueue(item);
+					q.Enqueue((item, accumulatedDistance+1));
 				}
 			}
-
 			//
 			if (q.Count > 0)
 			{
-				return NearestWhere(q.Dequeue(), condition, q, accumulatedDistance + 1);
+                var (item, d) = q.Dequeue();
+				return NearestWhere(item, condition, q, d);
 			}
 			else
 			{
 				return (null, -1);
 			}
-
-
 		}
 
 

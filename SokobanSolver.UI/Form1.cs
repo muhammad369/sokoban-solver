@@ -48,7 +48,7 @@ namespace sokoban_solver
             g = Graphics.FromImage(image);
             //
 
-            currentState = new SokobanState(indexEnd.X, indexEnd.Y);
+            currentState = new SokobanState(indexEnd.X, indexEnd.Y, 0);
             //initializeState(currentState, indexEnd);
             drawState(currentState, indexEnd);
             refreshCanvas();

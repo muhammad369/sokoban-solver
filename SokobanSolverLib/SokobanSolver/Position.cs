@@ -24,8 +24,18 @@ namespace sokoban_solver
 
         public override int GetHashCode()
         {
-            return this.X ^ 2 - this.Y;
+            return HashCode.Combine(X, Y);
         }
-        
-    }
+
+        public bool Equals(Position p)
+        {
+            return this.X == p.X && this.Y == p.Y;
+        }
+
+		public override string ToString()
+		{
+            return $"p({X},{Y})";
+		}
+
+	}
 }

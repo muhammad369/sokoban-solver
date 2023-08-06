@@ -87,6 +87,8 @@ namespace Solver.AStar
                 {
                     var winner = GetLeastCostState();
 
+                    OpenSet.Remove(winner);
+
                     return search(winner);
                 }
                 else
@@ -114,11 +116,12 @@ namespace Solver.AStar
 
 
 		/// <summary>
-		/// returns the entire path to solution state form the initial state
+		/// returns the entire path to solution state form the initial state, 
+        /// or null if there is no solution
 		/// </summary>
 		/// <param name="state"></param>
 		/// <returns></returns>
-		public List<AbsState> getSolution(AbsState initialState)
+		public List<AbsState>? getSolution(AbsState initialState)
         {
             if (search(initialState))
             {

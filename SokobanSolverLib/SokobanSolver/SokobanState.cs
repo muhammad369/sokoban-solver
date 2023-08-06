@@ -1,4 +1,4 @@
-
+﻿
 
 using Solver.AStar;
 using System;
@@ -39,7 +39,7 @@ namespace sokoban_solver
             return this.board[x, y];
         }
 
-        public SokobanState(int dimX, int dimY)
+        public SokobanState(int dimX, int dimY, int gCost): base(gCost)
         {
             this.board = new byte[dimX, dimY];
             router = new Router(this);
@@ -62,13 +62,13 @@ namespace sokoban_solver
 
         public void SetBlock(int x, int y)
         {
-            board[x, y] = BLOCK;
-
+            SetBlock(new Position(x, y));
         }
 
         public void SetBlock(Position d)
         {
-            this.board[d.X, d.Y] = BLOCK;
+            board[d.X, d.Y] = BLOCK;
+            blocks.Add(d);
         }
 
 
@@ -107,14 +107,14 @@ namespace sokoban_solver
 
         public void SetBlockInTarget(int x, int y)
         {
-            this.board[x, y] = BLOCK_IN_TARGET;
-
+            SetBlockInTarget(new Position(x, y));
         }
 
         public void SetBlockInTarget(Position d)
         {
-            this.board[d.X, d.Y] = BLOCK_IN_TARGET;
-        }
+			board[d.X, d.Y] = BLOCK_IN_TARGET;
+			blocks.Add(d);
+		}
 
 
 
@@ -144,7 +144,7 @@ namespace sokoban_solver
 
                 /*
                 the state is considered the same iff:
-                - blocks positions are equivalent
+                - blocks positions are equivalent (not neccessarily in order)
                 - player position in one of them has route a to the other
                 */
 
@@ -156,6 +156,7 @@ namespace sokoban_solver
                         return false;
                     }
                 }
+                //
                 if (!this.router.RouteExists(this.player, other.player))
                 {
                     return false;
@@ -169,15 +170,8 @@ namespace sokoban_solver
 
         public override int GetHashCode()
         {
-            int hash = 0;
-            foreach (Position item in this.blocks)
-            {
-                hash += item.GetHashCode();
-                //TODO: search for good way o implement the hashCode
-            }
-            //hash = 11 * hash + (this.blocks != null ? this.blocks.GetHashCode() : 0);
-            return hash;
-
+            // avoid the effect of blocks order, by ordering them
+            return string.Join("", blocks.Select(b => $"{b.X}{b.Y}").OrderBy(b=> b)).GetHashCode();
         }
 
 
@@ -185,7 +179,7 @@ namespace sokoban_solver
         {
             int x = this.board.GetLength(0);
             int y = this.board.GetLength(1);
-            SokobanState s = new SokobanState(x, y);
+            SokobanState s = new SokobanState(x, y, GCost);
             //clone board
             for (int i = 0; i < x; i++)
             {
@@ -201,7 +195,7 @@ namespace sokoban_solver
                 s.blocks.Add(item);
             }
 
-            //clone targets not yet reached and ball
+            //clone targets not yet reached and player
             s.targetsNotYetFilled = this.targetsNotYetFilled;
             s.player = new Position(this.player);
 
@@ -407,7 +401,75 @@ namespace sokoban_solver
 
 		public override int CalculateHeuristicCost()
 		{
-            return 1;
+            if (isBlockedState()) return int.MaxValue;
+            //
+            var router = new Router(this);
+            var matchedTargets = new List<Position>();
+            var h = 0;
+            //
+            foreach (var block in blocks)
+            {
+                if (GetCell(block) == BLOCK_IN_TARGET)
+                {
+                    continue;
+                }
+                //
+                var (p, d) = router.NearestWhere(block, (p, c) => (c == TARGET || c == PLAYER_IN_TARGET) && (!matchedTargets.Contains(p)));
+
+                if(p != null)
+                {
+                    h += d;
+                    matchedTargets.Add((Position)p);
+                }
+                else
+                {
+                    h += board.Length;
+                }
+            }
+            //
+            return h;
 		}
+
+
+		public override string ToString()
+		{
+			StringBuilder sb = new StringBuilder();
+            //
+            for (int i = 0; i < board.GetLength(0); i++)
+            {
+                for (int j = 0; j < board.GetLength(1); j++)
+                {
+                    sb.Append(boardChar( board[i, j]));
+                    sb.Append(' ');
+                }
+                sb.Append("\n");
+            }
+            //
+            return sb.ToString();
+		}
+
+		private char boardChar(byte v)
+		{
+			switch (v)
+            {
+                case WALL: return '■';
+                case BLOCK: return 'O';
+				case PLAYER: return 'Ω';
+				case TARGET: return 'X';
+				case BLOCK_IN_TARGET: return 'ф';
+				case PLAYER_IN_TARGET: return 'Ω';
+				case EMPTY: return '□';
+                default: return '\0';
+			}
+		}
+
+        public string Description 
+        { 
+            get
+            {
+                return ToString() + $"\n g+h= {GCost}+{HCost}";
+            } 
+        }
+
 	}
 }
