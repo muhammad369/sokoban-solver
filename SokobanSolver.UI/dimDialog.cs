@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
-namespace sokoban_solver
+namespace SokobanSolver
 {
     public partial class dimDialog : Form
     {

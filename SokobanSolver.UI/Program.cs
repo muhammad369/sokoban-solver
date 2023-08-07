@@ -1,4 +1,4 @@
-using sokoban_solver;
+using SokobanSolver;
 
 namespace SokobanSolver.UI
 {

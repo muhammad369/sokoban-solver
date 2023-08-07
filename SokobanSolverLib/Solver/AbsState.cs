@@ -12,7 +12,7 @@ namespace Solver.AStar
             this.GCost = gCost;
         }
 
-        public abstract AbsState Clone();
+        //public abstract AbsState Clone();
 
         public abstract List<AbsState> Next();
 

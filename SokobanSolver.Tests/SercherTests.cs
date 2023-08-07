@@ -1,4 +1,4 @@
-﻿using sokoban_solver;
+﻿using SokobanSolver;
 using Solver.AStar;
 using System;
 using System.Collections.Generic;
@@ -66,7 +66,7 @@ namespace SokobanSolver.Tests
 			return Math.Abs(position.X - Target.X) + Math.Abs(position.Y - Target.Y);
 		}
 
-		public override AbsState Clone()
+		public AbsState Clone()
 		{
 			return new PositionState(new Position(position.X, position.Y), GCost);
 		}

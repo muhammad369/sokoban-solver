@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace sokoban_solver
+namespace SokobanSolver
 {
 
-    public class Router
+    public class SokobanPathFinder
     {
 
         private SokobanState state;
         private bool[,] visited;
 
-        public Router(SokobanState state)
+        public SokobanPathFinder(SokobanState state)
         {
             this.state = state;
         }
@@ -20,7 +20,7 @@ namespace sokoban_solver
         /// <summary>
         ///  Finds if there is route from cell to another,
         /// </summary>
-        public bool RouteExists(Position from, Position to, Queue<Position>? q = null)
+        public bool PathExists(Position from, Position to, Queue<Position>? q = null)
         {
             if (q == null)
             {
@@ -47,14 +47,12 @@ namespace sokoban_solver
             //
             if (q.Count > 0)
             {
-                return RouteExists(q.Dequeue(), to, q);
+                return PathExists(q.Dequeue(), to, q);
             }
             else
             {
                 return false;
             }
-           
-            
         }
 
        
@@ -86,32 +84,32 @@ namespace sokoban_solver
             if (IsValidPosition(right.X, right.Y) 
                 && !visited[d.X + 1, d.Y] 
                 && GetCell(right) != SokobanState.WALL 
-                && GetCell(right) != SokobanState.BLOCK 
-                && GetCell(right) != SokobanState.BLOCK_IN_TARGET)//right
+                && GetCell(right) != SokobanState.BOX 
+                && GetCell(right) != SokobanState.BOX_IN_TARGET)//right
             {
                 tmp.Add(new Position(d.X + 1, d.Y));
             }
             if (IsValidPosition(left.X, left.Y) 
                 && !visited[d.X - 1, d.Y] 
                 && GetCell(left) != SokobanState.WALL 
-                && GetCell(left) != SokobanState.BLOCK 
-                && GetCell(left) != SokobanState.BLOCK_IN_TARGET)//left
+                && GetCell(left) != SokobanState.BOX 
+                && GetCell(left) != SokobanState.BOX_IN_TARGET)//left
             {
                 tmp.Add(new Position(d.X - 1, d.Y));
             }
             if (IsValidPosition(up.X, up.Y) 
                 && !visited[d.X, d.Y - 1] 
                 && GetCell(up) != SokobanState.WALL 
-                && GetCell(up) != SokobanState.BLOCK 
-                && GetCell(up) != SokobanState.BLOCK_IN_TARGET)//up
+                && GetCell(up) != SokobanState.BOX 
+                && GetCell(up) != SokobanState.BOX_IN_TARGET)//up
             {
                 tmp.Add(new Position(d.X, d.Y - 1));
             }
             if (IsValidPosition(down.X, down.Y) 
                 && !visited[d.X, d.Y + 1] 
                 && GetCell(down) != SokobanState.WALL 
-                && GetCell(down) != SokobanState.BLOCK 
-                && GetCell(down) != SokobanState.BLOCK_IN_TARGET)//down
+                && GetCell(down) != SokobanState.BOX 
+                && GetCell(down) != SokobanState.BOX_IN_TARGET)//down
             {
                 tmp.Add(new Position(d.X, d.Y + 1));
             }

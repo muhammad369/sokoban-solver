@@ -1,4 +1,4 @@
-﻿namespace sokoban_solver
+﻿namespace SokobanSolver
 {
     partial class dimDialog
     {

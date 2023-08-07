@@ -1,22 +1,22 @@
-using sokoban_solver;
+using SokobanSolver;
 
 namespace SokobanSolver.Tests
 {
 	[TestClass]
-	public class RouterTests
+	public class PathFindingTests
 	{
 		[TestMethod]
 		public void RouteExists()
 		{
 			var state = new SokobanState(4, 4, 0);
 
-			state.SetBlock(0, 0);
+			state.SetBox(0, 0);
 			state.SetTarget(3, 3);
 
 
-			var router = new Router(state);
+			var router = new SokobanPathFinder(state);
 
-			var test = router.RouteExists(new Position(0, 0), new Position(3, 3));
+			var test = router.PathExists(new Position(0, 0), new Position(3, 3));
 
 			Assert.IsTrue(test);
 
@@ -25,13 +25,13 @@ namespace SokobanSolver.Tests
 			state.SetWall(2, 1);
 
 
-			var test2 = router.RouteExists(new Position(0, 0), new Position(3, 3));
+			var test2 = router.PathExists(new Position(0, 0), new Position(3, 3));
 
 			Assert.IsTrue(test2);
 
 			state.SetWall(3, 0);
 
-			var test3 = router.RouteExists(new Position(0, 0), new Position(3, 3));
+			var test3 = router.PathExists(new Position(0, 0), new Position(3, 3));
 
 			Assert.IsFalse(test3);
 
@@ -44,7 +44,7 @@ namespace SokobanSolver.Tests
 			var state = new SokobanState(4, 4, 0);
 
 
-			var router = new Router(state);
+			var router = new SokobanPathFinder(state);
 
 			var (pos1, dist1) = router.NearestWhere(new Position(0, 0), (pos, content)=> content == SokobanState.TARGET);
 
