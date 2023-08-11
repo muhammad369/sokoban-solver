@@ -27,11 +27,19 @@ namespace SokobanSolver
         public byte targetsNotYetFilled;
         public Position player;
         public List<Position> boxes;
-        SokobanPathFinder router;
+        SokobanPathFinder pathFinder;
 
         public byte GetCell(Position position)
         {
             return this.board[position.X, position.Y];
+        }
+
+        /// <summary>
+        /// this method doesnt maintain boxes list, player and targetsNotFilled
+        /// </summary>
+        public void SetCell(Position position, byte content)
+        {
+            board[position.X, position.Y] = content;
         }
 
         public byte GetCell(int x, int y)
@@ -42,21 +50,55 @@ namespace SokobanSolver
         public SokobanState(int dimX, int dimY, int gCost): base(gCost)
         {
             this.board = new byte[dimX, dimY];
-            router = new SokobanPathFinder(this);
+            pathFinder = new SokobanPathFinder(this);
             targetsNotYetFilled = 0;
             boxes = new List<Position>();
         }
+
+
+        public void ClearCell(Position position)
+        {
+			var content = GetCell(position);
+            //
+            if (content == PLAYER)
+            {
+                player.X = player.Y = -1;
+            }
+            else if(content == PLAYER_IN_TARGET)
+            {
+				player.X = player.Y = -1;
+                targetsNotYetFilled--;
+			}
+            else if(content == BOX)
+            {
+                boxes.Remove(position);
+            }
+            else if(content == TARGET)
+            {
+                targetsNotYetFilled--;
+            }
+            else if (content == BOX_IN_TARGET)
+            {
+                boxes.Remove(position);
+                //targetsNotYetFilled--;
+            }
+
+            // if EMPTY or WALL nothing special needs to be done
+            //
+            board[position.X, position.Y] = EMPTY;
+		}
 
 
         //setters
         /// Supposed to be used only when moving blocks and palyer
         public void SetEmpty(int x, int y)
         {
-            this.board[x, y] = SokobanState.EMPTY;
+            SetEmpty(new Position(x, y));
         }
 
         public void SetEmpty(Position d)
         {
+            ClearCell(d);
             this.board[d.X, d.Y] = EMPTY;
         }
 
@@ -67,6 +109,8 @@ namespace SokobanSolver
 
         public void SetBox(Position d)
         {
+            ClearCell(d);
+            //
             board[d.X, d.Y] = BOX;
             boxes.Add(d);
         }
@@ -74,36 +118,42 @@ namespace SokobanSolver
 
         public void SetPlayer(int x, int y)
         {
-            board[x, y] = PLAYER;
-            this.player.X = x;
-            this.player.Y = y;
+            SetPlayer(new Position(x, y));
         }
 
 
         public void SetPlayer(Position d)
         {
-            SetPlayer(d.X, d.Y);
+            ClearCell(d);
+            //
+            board[d.X, d.Y] = PLAYER;
+            player = d;
         }
 
         public void SetWall(int x, int y)
         {
-            this.board[x, y] = WALL;
+            SetWall(new Position(x, y));
         }
 
         public void SetWall(Position d)
         {
-            this.board[d.X, d.Y] = WALL;
+            ClearCell(d);
+            //
+            board[d.X, d.Y] = WALL;
         }
 
         public void SetTarget(int x, int y)
         {
-            this.board[x, y] = TARGET;
+            SetTarget(new Position(x, y));
         }
 
         public void SetTarget(Position d)
         {
+            ClearCell(d);
+            //
             this.board[d.X, d.Y] = TARGET;
-        }
+            targetsNotYetFilled++;
+		}
 
         public void SetBoxInTarget(int x, int y)
         {
@@ -112,24 +162,28 @@ namespace SokobanSolver
 
         public void SetBoxInTarget(Position d)
         {
+            ClearCell(d);
+            //
 			board[d.X, d.Y] = BOX_IN_TARGET;
-			boxes.Add(d);
+            boxes.Add(d);
+            //targetsNotYetFilled++;
 		}
 
 
 
         public void SetPlayerInTarget(int x, int y)
         {
-            this.board[x, y] = PLAYER_IN_TARGET;
-            this.player.X = x;
-            this.player.Y = y;
-
-        }
+            SetPlayerInTarget(new Position(x, y));
+		}
 
 
         public void SetPlayerInTarget(Position d)
         {
-            SetPlayerInTarget(d.X, d.Y);
+            ClearCell(d);
+            //
+            board[d.X, d.Y] = PLAYER_IN_TARGET;
+            player = d;
+            targetsNotYetFilled++;
         }
 
 
@@ -157,7 +211,7 @@ namespace SokobanSolver
                     }
                 }
                 //
-                if (!this.router.PathExists(this.player, other.player))
+                if (!this.pathFinder.PathExists(this.player, other.player))
                 {
                     return false;
                 }
@@ -215,22 +269,22 @@ namespace SokobanSolver
             Position down = new Position(d.X, d.Y + 1);
             if (IsEmpty(right) && IsEmpty(left))//right ,left
             {
-                if (router.PathExists(player, left))//right
+                if (pathFinder.PathExists(player, left))//right
                 {
                     tmp.Add(new Position(d.X + 1, d.Y));
                 }
-                if (router.PathExists(player, right))//left
+                if (pathFinder.PathExists(player, right))//left
                 {
                     tmp.Add(new Position(d.X - 1, d.Y));
                 }
             }
             if (IsEmpty(up) && IsEmpty(down))//up ,down
             {
-                if (router.PathExists(player, down))//up
+                if (pathFinder.PathExists(player, down))//up
                 {
                     tmp.Add(new Position(d.X, d.Y - 1));
                 }
-                if (router.PathExists(player, up))//down
+                if (pathFinder.PathExists(player, up))//down
                 {
                     tmp.Add(new Position(d.X, d.Y + 1));
                 }
@@ -247,13 +301,15 @@ namespace SokobanSolver
         {
             if(!IsValidPosition(x, y)) return false;
             //
-            if (this.board[x, y] == EMPTY)
+            var content = this.board[x, y];
+
+            if (content == EMPTY)
                 return true;
-            else if (this.board[x, y] == TARGET)
+            else if (content == TARGET)
                 return true;
-            else if (this.board[x, y] == PLAYER)
+            else if (content == PLAYER)
                 return true;
-            else if (this.board[x, y] == PLAYER_IN_TARGET)
+            else if (content == PLAYER_IN_TARGET)
                 return true;
             else
                 return false;
@@ -278,7 +334,7 @@ namespace SokobanSolver
             {
                 foreach (Position move in GetBoxValidMoves(box))
                 {
-                    tmp.Add(formState(box, move));
+                    tmp.Add(FormState(box, move));
                 }
             }
             return tmp;
@@ -288,52 +344,55 @@ namespace SokobanSolver
 
 
         //takes a box and a position to move to and form a new state
-        private SokobanState formState(Position box, Position move)
+        public SokobanState FormState(Position box, Position move)
         {
-            SokobanState s = this.Clone() as SokobanState;
+            SokobanState s = this.Clone();
             s.GCost = this.GCost + 1;
+            //
+            //removing the player from its initial state
+            if (s.GetCell(player) == PLAYER_IN_TARGET)
+            {
+                s.SetCell(player, TARGET);
+            }
+            else if (s.GetCell(player) == PLAYER)
+            { 
+                s.SetCell(player, EMPTY);
+            }
+            else throw new Exception("unexpected cell value, should contain player");
+            
 
-            //removing the ball from its initial state
-            if (s.board[player.X, player.Y] == PLAYER_IN_TARGET)
-                s.SetTarget(player);
-
-            else if (s.board[player.X, player.Y] == PLAYER)  //ball
-                s.SetEmpty(player);
-
-            //else throw new Exception("unexpected cell value");
-
-            //move the block
+            //move the box
             s.boxes.Remove(box);
             s.boxes.Add(move);
 
-            //remove blk and put ball
-            if (s.board[box.X, box.Y] == BOX)
+            //remove box and put player
+            s.player = box;
+            if (s.GetCell(box) == BOX)
             {
-                s.SetPlayer(box);
-                s.player = box;
+                s.SetCell(box, PLAYER);
             }
-            else if (s.board[box.X, box.Y] == BOX_IN_TARGET)
-            {  //block in target
-                s.SetPlayerInTarget(box);
-                s.player = box;
-                s.targetsNotYetFilled += 1;
+            else if (s.GetCell(box) == BOX_IN_TARGET)
+            {  //box in target
+                s.SetCell(box, PLAYER_IN_TARGET);
+                s.targetsNotYetFilled++;
             }
             else
             {
-                //throw new Exception("unexpected cell value");
+                throw new Exception("unexpected cell value, should contain box");
             }
+			
 
-            //adjust the position of move and put block
-            if (s.board[move.X, move.Y] == TARGET)
+			//adjust the position of move and put box
+			if (s.GetCell(move) == TARGET)
             {//target
-                s.SetBoxInTarget(move);
-                s.targetsNotYetFilled -= 1;
+                s.SetCell(move, BOX_IN_TARGET);
+                s.targetsNotYetFilled--;
             }
-            else if (s.board[move.X, move.Y] == EMPTY)//empty
+            else if (s.GetCell(move) == EMPTY)//empty
             {
-                s.SetBox(move);
+                s.SetCell(move, BOX);
             }
-            //else throw new Exception("unexpected cell value");
+            else throw new Exception("unexpected cell value, should be Target or Empty");
 
             //now return the state
             return s;
@@ -370,7 +429,7 @@ namespace SokobanSolver
 
 		public override int CalculateHeuristicCost()
 		{
-            if (IsBlockedState()) return int.MaxValue;
+            if (IsBlockedState()) return 1000000;
             //
             var router = new SokobanPathFinder(this);
             var matchedTargets = new List<Position>();
@@ -393,7 +452,7 @@ namespace SokobanSolver
                 else
                 {
                     Console.WriteLine("A case that shouldn't happen, box with no matching target");
-                    h += board.GetLength(0);
+                    throw new Exception("A box with no matching target");
                 }
             }
             //
@@ -404,6 +463,8 @@ namespace SokobanSolver
 		public override string ToString()
 		{
 			StringBuilder sb = new StringBuilder();
+            //
+            sb.AppendLine($"g+h= {GCost}+{HCost}");
             //
             for (int i = 0; i < board.GetLength(0); i++)
             {
@@ -437,7 +498,7 @@ namespace SokobanSolver
         { 
             get
             {
-                return ToString() + $"\n g+h= {GCost}+{HCost}";
+                return ToString();
             } 
         }
 

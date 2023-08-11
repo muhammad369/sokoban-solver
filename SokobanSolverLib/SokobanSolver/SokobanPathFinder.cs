@@ -118,7 +118,48 @@ namespace SokobanSolver
             
         }
 
-        private byte GetCell(Position p)
+        /// <summary>
+        /// The same as GetAjacencies but treats boxes cells as possible path
+        /// </summary>
+		private List<Position> GetAdjacenciesForEvaluation(Position d)
+		{
+			List<Position> tmp = new List<Position>();
+
+			Position right = new Position(d.X + 1, d.Y);
+			Position left = new Position(d.X - 1, d.Y);
+			Position up = new Position(d.X, d.Y - 1);
+			Position down = new Position(d.X, d.Y + 1);
+			//
+			if (IsValidPosition(right.X, right.Y)
+				&& !visited[d.X + 1, d.Y]
+				&& GetCell(right) != SokobanState.WALL)//right
+			{
+				tmp.Add(new Position(d.X + 1, d.Y));
+			}
+            //
+			if (IsValidPosition(left.X, left.Y)
+				&& !visited[d.X - 1, d.Y]
+				&& GetCell(left) != SokobanState.WALL)//left
+			{
+				tmp.Add(new Position(d.X - 1, d.Y));
+			}
+			if (IsValidPosition(up.X, up.Y)
+				&& !visited[d.X, d.Y - 1]
+				&& GetCell(up) != SokobanState.WALL)//up
+			{
+				tmp.Add(new Position(d.X, d.Y - 1));
+			}
+			if (IsValidPosition(down.X, down.Y)
+				&& !visited[d.X, d.Y + 1]
+				&& GetCell(down) != SokobanState.WALL)//down
+			{
+				tmp.Add(new Position(d.X, d.Y + 1));
+			}
+
+			return tmp;
+		}
+
+		private byte GetCell(Position p)
         {
             return state.GetCell(p);
         }
@@ -147,7 +188,7 @@ namespace SokobanSolver
 			}
 			//
 			SetVisited(from);
-			List<Position> adj = GetAdjacencies(from);
+			List<Position> adj = GetAdjacenciesForEvaluation(from);
 			if (adj.Count > 0)
 			{
 				
@@ -168,6 +209,6 @@ namespace SokobanSolver
 			}
 		}
 
-
+		
 	}
 }

@@ -37,12 +37,12 @@ namespace SokobanSolver.Tests
 			var solSteps = searcher.getSolution(startingstate);
 
 			Assert.IsNotNull(solSteps);
-			Assert.AreEqual(5, solSteps.Count);
+			Assert.AreEqual(6, solSteps.Count);
 
-			for (int i = 0; i < 5; i++)
+			for (int i = 0; i < 6; i++)
 			{
 				var item = solSteps[i] as PositionState;
-				Assert.AreEqual(i+1, item!.position.X);
+				Assert.AreEqual(i, item!.position.X);
 				Assert.AreEqual(0, item!.position.Y);
 			}
 

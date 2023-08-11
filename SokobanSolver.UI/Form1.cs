@@ -253,40 +253,33 @@ namespace SokobanSolver
 					Position p = new Position(i, j);
 					if (pos == SokobanState.EMPTY)
 					{
-
 						drawEmpty(p);
 					}
 					else if (pos == SokobanState.WALL)
 					{
-
 						drawWall(p);
 					}
 					else if (pos == SokobanState.BOX)
 					{
-
 						drawEmpty(p);
 						drawBlock(p);
 					}
 					else if (pos == SokobanState.TARGET)
 					{
-
 						drawTarget(p);
 					}
 					else if (pos == SokobanState.PLAYER)
 					{
-
 						drawEmpty(p);
 						drawBall(p);
 					}
 					else if (pos == SokobanState.BOX_IN_TARGET)
 					{
-
 						drawTarget(p);
 						drawBlock(p);
 					}
 					else if (pos == SokobanState.PLAYER_IN_TARGET)
 					{
-
 						drawTarget(p);
 						drawBall(p);
 					}

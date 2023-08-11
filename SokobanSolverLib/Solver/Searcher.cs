@@ -15,7 +15,7 @@ namespace Solver.AStar
         Dictionary<AbsState, AbsState> OpenSet = new Dictionary<AbsState, AbsState>();
 		Dictionary<AbsState, AbsState> ClosedSet = new Dictionary<AbsState, AbsState>();
         
-        AbsState finalStateNode;
+        AbsState finalState;
 
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace Solver.AStar
 
             if (node.IsTargetState())
             {
-                finalStateNode = node;
+                finalState = node;
                 return true;
             }
             else
@@ -126,9 +126,11 @@ namespace Solver.AStar
             if (search(initialState))
             {
 				List<AbsState> solutionSteps = new List<AbsState>();
-				for (AbsState i = finalStateNode; i.Parent != null; i = i.Parent)
+                solutionSteps.Add(finalState);
+                //
+				for (AbsState i = finalState; i.Parent != null; i = i.Parent)
                 {
-                    solutionSteps.Add(i);
+                    solutionSteps.Add(i.Parent);
                 }
                 solutionSteps.Reverse();
                 return solutionSteps;
