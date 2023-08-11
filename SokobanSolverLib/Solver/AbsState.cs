@@ -35,8 +35,9 @@ namespace Solver.AStar
         public int TotalCost { get { return GCost + HCost; } }
 
         /// <summary>
-        /// Penalties to make preference on them, for the states with equal total costs
+        /// Compare by any kind of Penalties to make preference on the states with equal total costs
         /// </summary>
-        public int[] Penalties;
+        public abstract AbsState PenaltyCompare(AbsState other);
+       
     }
 }

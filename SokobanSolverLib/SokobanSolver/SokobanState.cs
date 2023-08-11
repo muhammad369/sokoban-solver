@@ -21,13 +21,14 @@ namespace SokobanSolver
         public const byte TARGET = 4;
         public const byte BOX_IN_TARGET = 5;
         public const byte PLAYER_IN_TARGET = 6;
-
+        //
         public byte[,] board;
-
         public byte targetsNotYetFilled;
         public Position player;
         public List<Position> boxes;
+        //
         SokobanPathFinder pathFinder;
+        int leastBoxTargetDistance = 1000000;
 
         public byte GetCell(Position position)
         {
@@ -443,12 +444,15 @@ namespace SokobanSolver
                 }
                 //
                 var (p, d) = router.NearestWhere(box, (p, c) => (c == TARGET || c == PLAYER_IN_TARGET) && (!matchedTargets.Contains(p)));
-
+                
+                //
                 if(p != null)
                 {
                     h += d;
                     matchedTargets.Add((Position)p);
-                }
+					//
+					leastBoxTargetDistance = Math.Min(d, leastBoxTargetDistance);
+				}
                 else
                 {
                     Console.WriteLine("A case that shouldn't happen, box with no matching target");
@@ -464,7 +468,8 @@ namespace SokobanSolver
 		{
 			StringBuilder sb = new StringBuilder();
             //
-            sb.AppendLine($"g+h= {GCost}+{HCost}");
+            sb.AppendLine($"g+h= {GCost}+{HCost}({TotalCost})");
+            sb.AppendLine($"penalties(T:{targetsNotYetFilled}, L:{leastBoxTargetDistance}, H:{HCost})");
             //
             for (int i = 0; i < board.GetLength(0); i++)
             {
@@ -494,13 +499,31 @@ namespace SokobanSolver
 			}
 		}
 
-        public string Description 
+		public string Description 
         { 
             get
             {
                 return ToString();
             } 
         }
+
+		public override SokobanState PenaltyCompare(AbsState other)
+		{
+            var o = other as SokobanState;
+            //
+            if (this.targetsNotYetFilled < o.targetsNotYetFilled)
+                return this;
+            else if (targetsNotYetFilled > o.targetsNotYetFilled)
+                return o;
+            //
+            if (leastBoxTargetDistance < o.leastBoxTargetDistance)
+                return this;
+            else if (leastBoxTargetDistance > o.leastBoxTargetDistance)
+                return o;
+            //
+            if (HCost < o.HCost) return this;
+            else return o;
+		}
 
 	}
 }

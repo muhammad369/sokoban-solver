@@ -79,7 +79,6 @@ namespace Solver.AStar
                             //newPath = true;
                         }
 
-
                     }
                 }
                 //
@@ -100,19 +99,9 @@ namespace Solver.AStar
 
 		private AbsState GetLeastCostState()
 		{
-            AbsState s = null;
-            int minValue = int.MaxValue;
-
-            foreach (var state in OpenSet.Values)
-            {
-                if(state.TotalCost < minValue)
-                {
-                    minValue = state.TotalCost;
-                    s = state;
-                }
-            }
-            return s;
+            return OpenSet.Values.Aggregate((a, b) => a.TotalCost < b.TotalCost ? a : a.TotalCost > b.TotalCost ? b : a.PenaltyCompare(b));
 		}
+
 
 
 		/// <summary>

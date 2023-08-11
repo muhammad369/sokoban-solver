@@ -209,7 +209,7 @@ namespace SokobanSolver.Tests
 			Assert.IsTrue(blocked);
 		}
 
-
+		[TestMethod]
 		public void IsBlockedState_2()
 		{
 			var s = new SokobanState(4, 5, 0);
@@ -217,6 +217,7 @@ namespace SokobanSolver.Tests
 			s.SetBoxInTarget(1, 2);
 			s.SetBox(1, 1);
 			s.SetWall(1, 3);
+			s.SetTarget(0, 0);
 			//
 
 			var text = s.Description;
@@ -384,6 +385,7 @@ namespace SokobanSolver.Tests
 			Assert.IsNull(solution);
 
 		}
+
 
 	}
 }

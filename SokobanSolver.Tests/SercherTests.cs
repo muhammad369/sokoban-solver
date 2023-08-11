@@ -103,6 +103,10 @@ namespace SokobanSolver.Tests
 			return position.ToString();
 		}
 
+		public override AbsState PenaltyCompare(AbsState other)
+		{
+			return this;
+		}
 	}
 
 }
