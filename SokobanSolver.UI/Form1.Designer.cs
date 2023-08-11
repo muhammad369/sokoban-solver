@@ -38,6 +38,7 @@
 			button7 = new Button();
 			label1 = new Label();
 			button8 = new Button();
+			button9 = new Button();
 			((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
 			SuspendLayout();
 			// 
@@ -99,7 +100,7 @@
 			// button5
 			// 
 			button5.BackColor = Color.FromArgb(224, 224, 224);
-			button5.Location = new Point(272, 28);
+			button5.Location = new Point(679, 29);
 			button5.Margin = new Padding(7, 8, 7, 8);
 			button5.Name = "button5";
 			button5.Size = new Size(135, 52);
@@ -111,7 +112,7 @@
 			// button6
 			// 
 			button6.BackColor = Color.FromArgb(224, 224, 224);
-			button6.Location = new Point(587, 28);
+			button6.Location = new Point(994, 29);
 			button6.Margin = new Padding(7, 8, 7, 8);
 			button6.Name = "button6";
 			button6.Size = new Size(135, 52);
@@ -135,7 +136,7 @@
 			// label1
 			// 
 			label1.BackColor = Color.FromArgb(224, 224, 224);
-			label1.Location = new Point(421, 27);
+			label1.Location = new Point(828, 28);
 			label1.Margin = new Padding(7, 0, 7, 0);
 			label1.Name = "label1";
 			label1.Size = new Size(152, 53);
@@ -145,7 +146,7 @@
 			// button8
 			// 
 			button8.BackColor = Color.FromArgb(224, 224, 224);
-			button8.Location = new Point(791, 28);
+			button8.Location = new Point(226, 28);
 			button8.Margin = new Padding(7, 8, 7, 8);
 			button8.Name = "button8";
 			button8.Size = new Size(151, 52);
@@ -154,11 +155,23 @@
 			button8.UseVisualStyleBackColor = false;
 			button8.Click += button8_Click;
 			// 
+			// button9
+			// 
+			button9.Location = new Point(956, 105);
+			button9.Margin = new Padding(7, 8, 7, 8);
+			button9.Name = "button9";
+			button9.Size = new Size(214, 67);
+			button9.TabIndex = 10;
+			button9.Text = "Empty";
+			button9.UseVisualStyleBackColor = true;
+			button9.Click += button9_Click;
+			// 
 			// Form1
 			// 
 			AutoScaleDimensions = new SizeF(12F, 30F);
 			AutoScaleMode = AutoScaleMode.Font;
 			ClientSize = new Size(1848, 1347);
+			Controls.Add(button9);
 			Controls.Add(button8);
 			Controls.Add(label1);
 			Controls.Add(button7);
@@ -189,6 +202,7 @@
 		private System.Windows.Forms.Button button7;
 		private System.Windows.Forms.Label label1;
 		private Button button8;
+		private Button button9;
 	}
 }
 

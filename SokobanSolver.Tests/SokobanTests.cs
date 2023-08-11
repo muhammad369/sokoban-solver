@@ -335,8 +335,6 @@ namespace SokobanSolver.Tests
 			s.SetTarget(1, 5);
 			s.SetBoxInTarget(2, 5);
 			//
-			//s.SetBox(1, 1);
-			//s.SetBox(1, 2);
 			s.SetBox(1, 3);
 			//
 			s.SetWall(1, 4);

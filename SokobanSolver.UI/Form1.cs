@@ -17,6 +17,7 @@ namespace SokobanSolver
 			InitializeComponent();
 		}
 
+		static int pixels = 100;
 
 		#region Global Data
 		Image image;
@@ -36,7 +37,7 @@ namespace SokobanSolver
 		//
 		bool solved = false;
 		int length = 0;
-		int p = 0;
+		int page = 0;
 		#endregion
 
 
@@ -54,7 +55,7 @@ namespace SokobanSolver
 			mode = 200;
 			solved = false;
 			length = 0;
-			p = -1;
+			page = -1;
 			//
 			button7.Text = "Solve";
 			button5.Enabled = button6.Enabled = button7.Enabled = true;
@@ -67,7 +68,7 @@ namespace SokobanSolver
 			//det the index
 
 			//realEnd=new Dimension(1000, 1000);
-			image = new Bitmap(indexEnd.X * 50, indexEnd.Y * 50);
+			image = new Bitmap(indexEnd.X * pixels, indexEnd.Y * pixels);
 			g = Graphics.FromImage(image);
 			//
 
@@ -82,10 +83,11 @@ namespace SokobanSolver
 		void drawBall(Position d)
 		{
 			//g.setColor(Color.ORANGE);
-			g.FillEllipse(Brushes.Orange, d.X * 50 + 5, d.Y * 50 + 5, 40, 40);
+			g.FillEllipse(Brushes.Orange, d.X * pixels + 5, d.Y * pixels + 5, (int)(pixels*0.8), (int)(pixels*0.8));
 			//g.setColor(Color.BLACK);
-			g.DrawEllipse(Pens.Gray, d.X * 50 + 5, d.Y * 50 + 5, 40, 40);
+			g.DrawEllipse(Pens.Gray, d.X * pixels + 5, d.Y * pixels + 5, (int)(pixels*0.8), (int)(pixels*0.8));
 		}
+
 		void setBall(Position d)
 		{
 			if (!playerSet)
@@ -110,9 +112,9 @@ namespace SokobanSolver
 		{
 
 			//g.setColor(Color.blue);
-			g.FillRectangle(Brushes.Blue, d.X * 50 + 5, d.Y * 50 + 5, 40, 40);
+			g.FillRectangle(Brushes.Blue, d.X * pixels + 5, d.Y * pixels + 5, (int)(pixels*0.8), (int)(pixels*0.8));
 			//g.setColor(Color.BLACK);
-			g.DrawRectangle(Pens.Gray, d.X * 50 + 5, d.Y * 50 + 5, 40, 40);
+			g.DrawRectangle(Pens.Gray, d.X * pixels + 5, d.Y * pixels + 5, (int)(pixels*0.8), (int)(pixels*0.8));
 		}
 		void setBlock(Position d)
 		{
@@ -128,20 +130,21 @@ namespace SokobanSolver
 			{
 				//currentState.boxes.Add(d);
 				currentState.SetBoxInTarget(d);
-				currentState.targetsNotYetFilled--;
 				drawBlock(d);
 				boxes++;
 			}
 		}
+
 		void drawWall(Position d)
 		{
 			//g.setColor(Color.gray);
-			g.FillRectangle(Brushes.Gray, d.X * 50, d.Y * 50, 50, 50);
+			g.FillRectangle(Brushes.Gray, d.X * pixels, d.Y * pixels, pixels, pixels);
 		}
+
 		void setWall(Position d)
 		{
-			byte pos = currentState.GetCell(d);
-			if (pos == SokobanState.EMPTY)
+			byte val = currentState.GetCell(d);
+			if (val == SokobanState.EMPTY)
 			{
 				currentState.SetWall(d);
 				drawWall(d);
@@ -151,9 +154,9 @@ namespace SokobanSolver
 		void drawTarget(Position d)
 		{
 			//g.setColor(Color.YELLOW);
-			g.FillRectangle(Brushes.Wheat, d.X * 50, d.Y * 50, 50, 50);
+			g.FillRectangle(Brushes.Wheat, d.X * pixels, d.Y * pixels, pixels, pixels);
 			//g.setColor(Color.gray);
-			g.DrawRectangle(Pens.Gray, d.X * 50, d.Y * 50, 50, 50);
+			g.DrawRectangle(Pens.Gray, d.X * pixels, d.Y * pixels, pixels, pixels);
 		}
 		void setTarget(Position d)
 		{
@@ -161,7 +164,7 @@ namespace SokobanSolver
 			if (pos == SokobanState.EMPTY)
 			{
 				currentState.SetTarget(d);
-				currentState.targetsNotYetFilled++;
+				//currentState.targetsNotYetFilled++;
 				targets++;
 				drawTarget(d);
 			}
@@ -169,52 +172,53 @@ namespace SokobanSolver
 		void drawEmpty(Position d)
 		{
 			//g.setColor(Color.white);
-			g.FillRectangle(Brushes.White, d.X * 50, d.Y * 50, 50, 50);
+			g.FillRectangle(Brushes.White, d.X * pixels, d.Y * pixels, pixels, pixels);
 			//g.setColor(Color.gray);
-			g.DrawRectangle(Pens.Gray, d.X * 50, d.Y * 50, 50, 50);
+			g.DrawRectangle(Pens.Gray, d.X * pixels, d.Y * pixels, pixels, pixels);
 		}
+
 		void setEmpty(Position d)
 		{
-			byte pos = currentState.GetCell(d);
-			if (pos == SokobanState.PLAYER)
+			byte val = currentState.GetCell(d);
+			if (val == SokobanState.PLAYER)
 			{
 				playerSet = false;
 				currentState.player = new Position();
 				currentState.SetEmpty(d);
 				drawEmpty(d);
 			}
-			else if (pos == SokobanState.BOX)
+			else if (val == SokobanState.BOX)
 			{
-				currentState.boxes.Remove(d);
+				//currentState.boxes.Remove(d);
 				boxes--;
 				currentState.SetEmpty(d);
 				drawEmpty(d);
 			}
-			else if (pos == SokobanState.TARGET)
+			else if (val == SokobanState.TARGET)
 			{
 				targets--;
-				currentState.targetsNotYetFilled--;
+				//currentState.targetsNotYetFilled--;
 				currentState.SetEmpty(d);
 				drawEmpty(d);
 			}
-			else if (pos == SokobanState.WALL)
+			else if (val == SokobanState.WALL)
 			{
 
 				currentState.SetEmpty(d);
 				drawEmpty(d);
 			}
-			else if (pos == SokobanState.PLAYER_IN_TARGET)
+			else if (val == SokobanState.PLAYER_IN_TARGET)
 			{
 				playerSet = false;
 				currentState.player = new Position();
 				targets--;
-				currentState.targetsNotYetFilled--;
+				//currentState.targetsNotYetFilled--;
 				currentState.SetEmpty(d);
 				drawEmpty(d);
 			}
-			else if (pos == SokobanState.BOX_IN_TARGET)
+			else if (val == SokobanState.BOX_IN_TARGET)
 			{
-				currentState.boxes.Remove(d);
+				//currentState.boxes.Remove(d);
 				boxes--;
 				targets--;
 				//don't decrement targetsNotYetReached because that target was reached
@@ -223,25 +227,8 @@ namespace SokobanSolver
 			}
 		}
 		//
-		void initializeState(SokobanState state, Position dim)
-		{
-			for (int i = 0; i < dim.X; i++)
-			{
-				state.SetWall(i, 0);
-			}
-			for (int i = 0; i < dim.X; i++)
-			{
-				state.SetWall(i, dim.Y - 1);
-			}
-			for (int i = 0; i < dim.Y - 1; i++)
-			{
-				state.SetWall(0, i);
-			}
-			for (int i = 0; i < dim.Y - 1; i++)
-			{
-				state.SetWall(dim.X - 1, i);
-			}
-		}
+
+
 
 		void drawState(SokobanState state, Position dim)
 		{
@@ -301,12 +288,18 @@ namespace SokobanSolver
 
 		private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
 		{
+			int x = (e.X / pixels);
+			int y = (e.Y / pixels);
+			Position clicked = new Position(x, y);
+
+			if (x < 0 || y < 0 || x > indexEnd.X - 1 || y > indexEnd.Y - 1)
+			{
+				return;
+			}
+			//
 			if (e.Button == MouseButtons.Left)
 			{
-				int x = (e.X / 50);
-				int y = (e.Y / 50);
-
-				Position clicked = new Position(x, y);
+				//
 				if (mode == SokobanState.PLAYER)
 				{
 					setBall(clicked);
@@ -323,18 +316,16 @@ namespace SokobanSolver
 				{
 					setTarget(clicked);
 				}
-
+				else if (mode == SokobanState.EMPTY)
+				{
+					setEmpty(clicked);
+				}
 
 			}
 			else if (e.Button == MouseButtons.Right)
 			{
-				int x = (e.X / 50);
-				int y = (e.Y / 50);
-				if (x != 0 && y != 0 && x < indexEnd.X - 1 && y < indexEnd.Y - 1)
-				{
-					Position clicked = new Position(x, y);
+				
 					setEmpty(clicked);
-				}
 			}
 			refreshCanvas();
 		}
@@ -390,6 +381,7 @@ namespace SokobanSolver
 				Searcher searcher = new Searcher();
 
 				solVector = searcher.getSolution(currentState);
+				//
 				if (solVector == null)//no solution
 				{
 					button7.Text = "no solution";
@@ -406,8 +398,8 @@ namespace SokobanSolver
 				}
 				solved = true;
 
-				p = -1;
-				mode = 255;
+				page = -1;
+				mode = 200;
 				button7.Enabled = false;
 			}
 		}
@@ -416,15 +408,15 @@ namespace SokobanSolver
 		{
 			if (solved)
 			{
-				if (p < length - 1)
+				if (page < length - 1)
 				{
-					p++;
+					page++;
 				}
-				currentState = solVector.ElementAt(p) as SokobanState;
+				currentState = solVector.ElementAt(page) as SokobanState;
 				drawState(currentState, indexEnd);
 				refreshCanvas();
 				//
-				label1.Text = (p + 1).ToString() + " / " + length.ToString();
+				label1.Text = page.ToString() + " / " + (length - 1).ToString();
 			}
 		}
 
@@ -432,22 +424,30 @@ namespace SokobanSolver
 		{
 			if (solved)
 			{
-				if (p > 0)
+				if (page > 0)
 				{
-					p--;
+					page--;
 				}
-				currentState = solVector.ElementAt(p) as SokobanState;
+				currentState = solVector.ElementAt(page) as SokobanState;
 				drawState(currentState, indexEnd);
 				refreshCanvas();
 				//
-				label1.Text = (p + 1).ToString() + " / " + length.ToString();
+				label1.Text = page.ToString() + " / " + (length - 1).ToString();
 			}
 
 		}
 
-		private void button8_Click(object sender, EventArgs e)
+		private void button8_Click(object sender, EventArgs e) // clear
 		{
 			clear();
+		}
+
+		private void button9_Click(object sender, EventArgs e) // empty
+		{
+			if (!solved)
+			{
+				mode = SokobanState.EMPTY;
+			}
 		}
 	}
 
